@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
-  Truck, 
+  Navigation,
   LayoutDashboard, 
   PackagePlus, 
   ClipboardList, 
@@ -35,28 +35,28 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onChangeVi
       }}
       className={`group flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-all mb-1 ${
         activeView === view 
-          ? 'bg-teal-600 text-white shadow-md shadow-teal-900/20' 
+          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20' 
           : 'text-slate-400 hover:bg-slate-800 hover:text-white'
       }`}
     >
-      <Icon className={`w-5 h-5 mr-3 transition-colors ${activeView === view ? 'text-teal-100' : 'text-slate-500 group-hover:text-slate-300'}`} />
-      {label}
+      <Icon className={`w-5 h-5 mr-3 transition-colors ${activeView === view ? 'text-indigo-100' : 'text-slate-500 group-hover:text-slate-300'}`} />
+      <span className="font-sans">{label}</span>
     </button>
   );
 
   return (
     <div className="min-h-screen flex bg-slate-100 font-sans">
       {/* Sidebar Desktop - Professional Dark Mode */}
-      <aside className="hidden md:flex flex-col w-64 bg-slate-900 fixed h-full z-20">
+      <aside className="hidden md:flex flex-col w-64 bg-slate-900 fixed h-full z-20 shadow-xl">
         <div className="p-6 flex items-center gap-3">
-          <div className="bg-teal-500 p-2 rounded-lg">
-            <Truck className="w-5 h-5 text-white" />
+          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-lg transform rotate-3">
+            <Navigation className="w-5 h-5 text-white transform -rotate-45 translate-x-0.5" fill="currentColor" />
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">LogiTrack</span>
+          <span className="text-2xl font-brand font-bold text-white tracking-tight">Vyhan</span>
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-1">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 px-2">Main Menu</div>
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 px-2 font-brand">Main Menu</div>
           {currentUser?.role === UserRole.SUPER_ADMIN && (
             <>
               <NavItem view="dashboard" icon={LayoutDashboard} label="Dashboard" />
@@ -80,11 +80,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onChangeVi
 
         <div className="p-4 border-t border-slate-800 bg-slate-900">
            <div className="flex items-center gap-3 mb-4 px-2">
-              <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white text-xs font-bold">
+              <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white text-xs font-bold font-brand ring-2 ring-indigo-500/20">
                   {currentUser?.name.charAt(0)}
               </div>
               <div className="overflow-hidden">
-                <p className="text-sm font-medium text-white truncate">{currentUser?.name}</p>
+                <p className="text-sm font-medium text-white truncate font-brand">{currentUser?.name}</p>
                 <p className="text-xs text-slate-500 truncate">{currentUser?.role === 'SUPER_ADMIN' ? 'Administrator' : 'Manager'}</p>
               </div>
            </div>
@@ -100,8 +100,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onChangeVi
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 w-full bg-slate-900 z-20 px-4 py-3 flex justify-between items-center shadow-md">
          <div className="flex items-center space-x-2 text-white">
-          <Truck className="w-6 h-6 text-teal-500" />
-          <span className="font-bold text-lg">LogiTrack</span>
+          <div className="bg-indigo-600 p-1.5 rounded-md">
+            <Navigation className="w-5 h-5 text-white transform -rotate-45" fill="currentColor" />
+          </div>
+          <span className="font-brand font-bold text-lg">Vyhan</span>
         </div>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-slate-300">
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -122,7 +124,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onChangeVi
       <main className="flex-1 md:ml-64 bg-slate-50 min-h-screen flex flex-col">
         {/* Top Header Strip */}
         <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-10 px-8 flex items-center justify-between shadow-sm">
-           <h2 className="text-lg font-bold text-slate-800 capitalize">
+           <h2 className="text-xl font-brand font-bold text-slate-800 capitalize">
              {activeView === 'book' ? 'New Shipment' : activeView}
            </h2>
 
@@ -141,7 +143,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onChangeVi
               {showNotifications && (
                 <div className="absolute top-14 right-8 w-80 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden ring-1 ring-black/5 z-30 animate-fade-in">
                   <div className="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                    <span className="text-xs font-bold text-slate-700 uppercase">Notifications</span>
+                    <span className="text-xs font-bold text-slate-700 uppercase font-brand">Notifications</span>
                     <span className="text-xs text-slate-400">{notifications.length} New</span>
                   </div>
                   <div className="max-h-80 overflow-y-auto">
@@ -167,7 +169,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onChangeVi
               <div className="h-8 w-px bg-slate-200"></div>
               
               <div className="flex items-center gap-2">
-                 <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-sm">
+                 <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm font-brand ring-2 ring-indigo-100">
                     {currentUser?.name.charAt(0)}
                  </div>
               </div>
