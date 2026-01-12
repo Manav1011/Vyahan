@@ -4,10 +4,10 @@ from .models import Organization, Branch
 
 
 class OrganizationAdmin(admin.ModelAdmin):
-	readonly_fields = ('password',)
+	readonly_fields = ('password','slug')
 
 class BranchAdmin(admin.ModelAdmin):
-	readonly_fields = ('password',)
+	readonly_fields = ('password','slug')
 
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(Branch, BranchAdmin)

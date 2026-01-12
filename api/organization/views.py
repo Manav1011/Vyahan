@@ -2,17 +2,85 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny
 from rest_framework import status, serializers
-from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import Organization, Branch
+from .models import Branch
 from .utils import authenticate_organization, authenticate_branch
 from core.utils import response
 from .permissions import IsOrganizationSet
 from core.authentication import OrganizationJWTAuthentication, BranchJWTAuthentication
 from .serializers import (
     OrganizationSerializer, BranchSerializer, BranchListRequestSerializer, BranchListResponseSerializer,
-    OrganizationLoginSerializer, BranchLoginSerializer, TokenResponseSerializer
+    OrganizationLoginSerializer, BranchLoginSerializer, TokenResponseSerializer,
+    RefreshTokenSerializer, LogoutSerializer
 )
+
+
+@swagger_auto_schema(
+	method='post',
+	request_body=RefreshTokenSerializer,
+	responses={200: TokenResponseSerializer},
+	operation_description="Refresh access and refresh tokens using an existing refresh token."
+)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def refresh_tokens(request):
+	serializer = RefreshTokenSerializer(data=request.data)
+	if not serializer.is_valid():
+		return response(status.HTTP_400_BAD_REQUEST, "Invalid request", error=serializer.errors)
+	
+	refresh_token_str = serializer.validated_data['refresh']
+	
+	try:
+		# Decode to get claims, then blacklist
+		old_refresh = RefreshToken(refresh_token_str)
+		
+		# Get the custom claims from the old token
+		sub_type = old_refresh.get('sub_type')
+		sub_id = old_refresh.get('sub_id')
+		
+		# Blacklist the old refresh token
+		old_refresh.blacklist()
+		
+		# Create new tokens with the same claims
+		new_refresh = RefreshToken()
+		new_refresh['sub_type'] = sub_type
+		new_refresh['sub_id'] = sub_id
+		
+		token_data = {
+			'access': str(new_refresh.access_token),
+			'refresh': str(new_refresh),
+		}
+		return response(status.HTTP_200_OK, "Tokens refreshed successfully", data=token_data)
+	except Exception as e:
+		return response(status.HTTP_401_UNAUTHORIZED, "Invalid or expired refresh token", error=str(e))
+
+
+@swagger_auto_schema(
+	method='post',
+	request_body=RefreshTokenSerializer,
+	responses={200: serializers.Serializer()},
+	operation_description="Logout and blacklist the refresh token."
+)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def logout(request):
+    serializer = RefreshTokenSerializer(data=request.data)
+    if not serializer.is_valid():
+        return response(status.HTTP_400_BAD_REQUEST, "Invalid request", error=serializer.errors)
+
+    refresh_token_str = serializer.validated_data.get('refresh')
+
+    if not refresh_token_str:
+        return response(status.HTTP_400_BAD_REQUEST, "Refresh token is required")
+
+    try:
+        # Blacklist refresh token
+        refresh = RefreshToken(refresh_token_str)
+        refresh.blacklist()
+        
+        return response(status.HTTP_200_OK, "Logout successful")
+    except Exception as e:
+        return response(status.HTTP_400_BAD_REQUEST, "Invalid token", error=str(e))
 
 
 @swagger_auto_schema(

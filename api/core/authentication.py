@@ -2,6 +2,7 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.backends import TokenBackend
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 from organization.models import Organization, Branch
@@ -26,6 +27,12 @@ class OrganizationJWTAuthentication(BaseAuthentication):
             validated_token = backend.decode(token_str, verify=True)
         except (InvalidToken, TokenError) as e:
             raise AuthenticationFailed(f"Invalid or expired token: {str(e)}")
+        
+        # Check if token is blacklisted
+        jti = validated_token.get('jti')
+        if jti and BlacklistedToken.objects.filter(token__jti=jti).exists():
+            raise AuthenticationFailed("Token has been blacklisted")
+        
         sub_type = validated_token.get('sub_type')
         sub_id = validated_token.get('sub_id')
         
@@ -64,6 +71,11 @@ class BranchJWTAuthentication(BaseAuthentication):
             validated_token = backend.decode(token_str, verify=True)
         except (InvalidToken, TokenError) as e:
             raise AuthenticationFailed(f"Invalid or expired token: {str(e)}")
+        
+        # Check if token is blacklisted
+        jti = validated_token.get('jti')
+        if jti and BlacklistedToken.objects.filter(token__jti=jti).exists():
+            raise AuthenticationFailed("Token has been blacklisted")
         
         sub_type = validated_token.get('sub_type')
         sub_id = validated_token.get('sub_id')
