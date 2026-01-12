@@ -7,7 +7,6 @@ export enum UserRole {
 export interface Office {
   id: string;
   name: string;
-  city: string;
   code: string; // e.g., NYC, BOS
 }
 

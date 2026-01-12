@@ -5,7 +5,7 @@ import { Building2, Plus, MapPin, X } from 'lucide-react';
 export const Offices: React.FC = () => {
   const { offices, addOffice } = useApp();
   const [showForm, setShowForm] = useState(false);
-  const [newOffice, setNewOffice] = useState({ name: '', city: '', code: '' });
+  const [newOffice, setNewOffice] = useState({ name: '', code: '' });
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -13,7 +13,7 @@ export const Offices: React.FC = () => {
       id: `off_${Date.now()}`,
       ...newOffice
     });
-    setNewOffice({ name: '', city: '', code: '' });
+    setNewOffice({ name: '', code: '' });
     setShowForm(false);
   };
 
@@ -21,7 +21,7 @@ export const Offices: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-6 pb-6 border-b border-slate-200">
         <h2 className="text-3xl font-bold text-slate-800">Office Network</h2>
-        <button 
+        <button
           onClick={() => setShowForm(!showForm)}
           className="bg-teal-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-teal-700 flex items-center shadow-sm border border-teal-700"
         >
@@ -34,30 +34,22 @@ export const Offices: React.FC = () => {
         <form onSubmit={handleAdd} className="bg-white p-6 rounded-2xl border border-slate-200 mb-8 shadow-sm">
           <h3 className="font-bold text-slate-800 mb-4 text-lg">Register New Branch</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-             <div>
-                <label className="text-xs font-bold text-slate-400 uppercase ml-1">Office Name</label>
-                <input 
-                  placeholder="e.g. Westside Hub" required
-                  className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:border-teal-500 outline-none"
-                  value={newOffice.name} onChange={e => setNewOffice({...newOffice, name: e.target.value})}
-                />
-             </div>
-             <div>
-                <label className="text-xs font-bold text-slate-400 uppercase ml-1">City</label>
-                <input 
-                  placeholder="City" required
-                  className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:border-teal-500 outline-none"
-                  value={newOffice.city} onChange={e => setNewOffice({...newOffice, city: e.target.value})}
-                />
-             </div>
-             <div>
-                <label className="text-xs font-bold text-slate-400 uppercase ml-1">Code</label>
-                <input 
-                  placeholder="e.g. WST" required
-                  className="w-full p-3 border border-slate-200 rounded-xl text-sm uppercase focus:border-teal-500 outline-none"
-                  value={newOffice.code} onChange={e => setNewOffice({...newOffice, code: e.target.value})}
-                />
-             </div>
+            <div>
+              <label className="text-xs font-bold text-slate-400 uppercase ml-1">Office Name</label>
+              <input
+                placeholder="e.g. Westside Hub" required
+                className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:border-teal-500 outline-none"
+                value={newOffice.name} onChange={e => setNewOffice({ ...newOffice, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-400 uppercase ml-1">Code</label>
+              <input
+                placeholder="e.g. WST" required
+                className="w-full p-3 border border-slate-200 rounded-xl text-sm uppercase focus:border-teal-500 outline-none"
+                value={newOffice.code} onChange={e => setNewOffice({ ...newOffice, code: e.target.value })}
+              />
+            </div>
           </div>
           <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
             <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-500 hover:text-slate-800 font-medium">Cancel</button>
@@ -78,9 +70,6 @@ export const Offices: React.FC = () => {
               </span>
             </div>
             <h3 className="font-bold text-xl mt-4 text-slate-900">{office.name}</h3>
-            <p className="text-slate-500 flex items-center mt-2 text-sm font-medium">
-              <MapPin className="w-4 h-4 mr-1 text-slate-400" /> {office.city}
-            </p>
           </div>
         ))}
       </div>

@@ -110,6 +110,7 @@ def organization_login(request):
 	token_data = {
 		'access': str(refresh.access_token),
 		'refresh': str(refresh),
+		'organization': OrganizationSerializer(org).data,
 	}
 	
 	return response(status.HTTP_200_OK, "Organization login successful", data=token_data)
@@ -142,6 +143,7 @@ def branch_login(request):
 	token_data = {
 		'access': str(refresh.access_token),
 		'refresh': str(refresh),
+		'branch': BranchSerializer(branch).data,
 	}
 	
 	return response(status.HTTP_200_OK, "Branch login successful", data=token_data)
@@ -164,3 +166,23 @@ def list_branches(request):
 	resp_serializer = BranchListResponseSerializer({'branches': branches})
 	return response(status.HTTP_200_OK, "Branches fetched successfully", data=resp_serializer.data)
 
+@swagger_auto_schema(
+	method='get',
+	responses={200: OrganizationSerializer},
+	operation_description="Check organization health and return details if subdomain is valid.",
+)
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def health_check(request):
+	org = getattr(request, 'organization', None)
+	if not org:
+		return response(status.HTTP_404_NOT_FOUND, "Organization not found")
+	
+	org_serializer = OrganizationSerializer(org)
+	branches = Branch.objects.filter(organization=org)
+	branch_serializer = BranchSerializer(branches, many=True)
+	
+	resp_data = org_serializer.data
+	resp_data['branches'] = branch_serializer.data
+	
+	return response(status.HTTP_200_OK, "Organization is healthy", data=resp_data)

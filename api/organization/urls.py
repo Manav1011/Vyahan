@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import list_branches, organization_login, branch_login, refresh_tokens, logout
+from .views import list_branches, organization_login, branch_login, refresh_tokens, logout, health_check
 
 urlpatterns = [
     path('login/', organization_login, name='organization_login'),
@@ -7,4 +7,5 @@ urlpatterns = [
     path('token/refresh/', refresh_tokens, name='refresh_tokens'),
     path('logout/', logout, name='logout'),
     path('branches/', list_branches, name='list_branches'),
+    path('health/', health_check, name='health_check'),
 ]
