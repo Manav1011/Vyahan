@@ -74,6 +74,7 @@ export const createApiClient = (onUnauthorized?: () => void) => {
         get: (endpoint: string, options?: ApiRequestOptions) => request(endpoint, { ...options, method: 'GET' }),
         post: (endpoint: string, body: any, options?: ApiRequestOptions) => request(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) }),
         put: (endpoint: string, body: any, options?: ApiRequestOptions) => request(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) }),
+        patch: (endpoint: string, body: any, options?: ApiRequestOptions) => request(endpoint, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
         delete: (endpoint: string, options?: ApiRequestOptions) => request(endpoint, { ...options, method: 'DELETE' }),
     };
 };
@@ -96,3 +97,10 @@ export const logoutUser = async (refresh: string) => {
 };
 
 export const fetchBranches = () => publicApi.get('/organization/branches/');
+
+// Shipment APIs
+export const createShipment = (data: any) => publicApi.post('/shipment/create/', data);
+export const fetchShipments = () => publicApi.get('/shipment/list/');
+export const updateShipmentStatus = (trackingId: string, status: string, remarks: string) =>
+    publicApi.patch(`/shipment/${trackingId}/update-status/`, { status, remarks });
+export const trackShipment = (trackingId: string) => publicApi.get(`/shipment/track/${trackingId}/`);

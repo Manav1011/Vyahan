@@ -7,17 +7,17 @@ from .models import Shipment, ShipmentHistory, ShipmentStatus
 from .serializers import ShipmentSerializer, ShipmentCreateSerializer, ShipmentHistorySerializer
 from core.utils import response
 from organization.permissions import IsOrganizationSet
-from core.authentication import OrganizationJWTAuthentication, BranchJWTAuthentication
+from core.authentication import VyahanJWTAuthentication
 
 @swagger_auto_schema(
     method='post',
     request_body=ShipmentCreateSerializer,
     responses={201: ShipmentSerializer},
-    operation_description="Book a new shipment. Requires Branch JWT authentication.",
+    operation_description="Book a new shipment. Requires Branch authentication.",
     security=[{'Bearer': []}]
 )
 @api_view(['POST'])
-@authentication_classes([BranchJWTAuthentication])
+@authentication_classes([VyahanJWTAuthentication])
 @permission_classes([IsOrganizationSet])
 def create_shipment(request):
     org = getattr(request, 'organization', None)
@@ -49,7 +49,7 @@ def create_shipment(request):
     security=[{'Bearer': []}]
 )
 @api_view(['GET'])
-@authentication_classes([OrganizationJWTAuthentication, BranchJWTAuthentication])
+@authentication_classes([VyahanJWTAuthentication])
 @permission_classes([IsOrganizationSet])
 def list_shipments(request):
     org = getattr(request, 'organization', None)
@@ -57,7 +57,7 @@ def list_shipments(request):
         return response(status.HTTP_404_NOT_FOUND, "Organization not found")
     
     # Check if admin or branch
-    is_org_admin = isinstance(request.successful_authenticator, OrganizationJWTAuthentication)
+    is_org_admin = request.branch is None
     branch = getattr(request, 'branch', None)
     
     if is_org_admin:
@@ -77,11 +77,11 @@ def list_shipments(request):
 @swagger_auto_schema(
     method='patch',
     responses={200: ShipmentSerializer},
-    operation_description="Update shipment status. Requires Branch JWT authentication.",
+    operation_description="Update shipment status. Requires Branch authentication.",
     security=[{'Bearer': []}]
 )
 @api_view(['PATCH'])
-@authentication_classes([BranchJWTAuthentication])
+@authentication_classes([VyahanJWTAuthentication])
 @permission_classes([IsOrganizationSet])
 def update_shipment_status(request, tracking_id):
     org = getattr(request, 'organization', None)

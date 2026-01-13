@@ -20,7 +20,8 @@ export enum ParcelStatus {
   BOOKED = 'BOOKED',
   IN_TRANSIT = 'IN_TRANSIT',
   ARRIVED = 'ARRIVED',
-  DELIVERED = 'DELIVERED'
+  DELIVERED = 'DELIVERED',
+  CANCELLED = 'CANCELLED'
 }
 
 export enum PaymentMode {
@@ -36,7 +37,7 @@ export interface TrackingEvent {
 }
 
 export interface Parcel {
-  id: string;
+  slug: string; // Using slug as id from backend
   trackingId: string;
   senderName: string;
   senderPhone: string;
@@ -44,14 +45,14 @@ export interface Parcel {
   receiverPhone: string;
   sourceOfficeId: string;
   destinationOfficeId: string;
-  weightKg: number;
-  quantity: number; // Added quantity
-  type: string; // e.g., "Box", "Document"
+  sourceOfficeTitle?: string;
+  destinationOfficeTitle?: string;
+  description: string;
   paymentMode: PaymentMode;
   price: number;
   currentStatus: ParcelStatus;
   history: TrackingEvent[];
-  createdAt: number;
+  createdAt: string; // ISO string from backend
 }
 
 export interface NotificationLog {

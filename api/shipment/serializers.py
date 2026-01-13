@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Shipment, ShipmentHistory, ShipmentStatus, PaymentMode
+from organization.models import Branch
 from organization.serializers import BranchSerializer
 
 class ShipmentHistorySerializer(serializers.ModelSerializer):
@@ -9,6 +10,8 @@ class ShipmentHistorySerializer(serializers.ModelSerializer):
 
 class ShipmentSerializer(serializers.ModelSerializer):
     history = ShipmentHistorySerializer(many=True, read_only=True)
+    source_branch = serializers.SlugRelatedField(slug_field='slug', read_only=True)
+    destination_branch = serializers.SlugRelatedField(slug_field='slug', read_only=True)
     source_branch_title = serializers.ReadOnlyField(source='source_branch.title')
     destination_branch_title = serializers.ReadOnlyField(source='destination_branch.title')
     
@@ -24,6 +27,8 @@ class ShipmentSerializer(serializers.ModelSerializer):
         ]
 
 class ShipmentCreateSerializer(serializers.ModelSerializer):
+    destination_branch = serializers.SlugRelatedField(slug_field='slug', queryset=Branch.objects.all())
+    
     class Meta:
         model = Shipment
         fields = [

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { User, Office, Parcel, ParcelStatus, TrackingEvent, UserRole, NotificationLog } from '../types';
-import { fetchHealth, fetchBranches, loginOrganization, loginBranch, logoutUser, createApiClient } from '../services/apiService';
+import { User, Office, Parcel, ParcelStatus, TrackingEvent, UserRole, NotificationLog, PaymentMode } from '../types';
+import { fetchHealth, fetchBranches, loginOrganization, loginBranch, logoutUser, createApiClient, fetchShipments, createShipment, updateShipmentStatus as apiUpdateStatus } from '../services/apiService';
 import { jwtDecode } from 'jwt-decode';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -19,8 +19,9 @@ interface AppContextType {
   addOffice: (officeData: { name: string, password?: string }) => Promise<{ success: boolean, message: string }>;
   deleteOffice: (officeId: string) => Promise<{ success: boolean, message: string }>;
   fetchAdminBranches: () => Promise<void>;
-  createParcel: (parcel: Omit<Parcel, 'id' | 'trackingId' | 'history' | 'currentStatus' | 'createdAt'>) => void;
-  updateParcelStatus: (parcelId: string, newStatus: ParcelStatus, note?: string) => void;
+  createParcel: (parcel: any) => Promise<{ success: boolean, message: string }>;
+  updateParcelStatus: (trackingId: string, newStatus: ParcelStatus, note?: string) => Promise<{ success: boolean, message: string }>;
+  fetchParcels: () => Promise<void>;
   getOfficeName: (id: string) => string;
 }
 
@@ -114,7 +115,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     };
 
-    initializeApp();
+    initializeApp().then(() => {
+      if (localStorage.getItem('access_token')) {
+        fetchParcels();
+      }
+    });
   }, []);
 
   // Helper to log "SMS"
@@ -165,6 +170,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (role === UserRole.SUPER_ADMIN) {
           await fetchAdminBranches();
         }
+
+        await fetchParcels();
 
         return { success: true, message: data.message };
       }
@@ -239,66 +246,90 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const getOfficeName = (id: string) => offices.find(o => o.id === id)?.name || 'Unknown Office';
 
-  const createParcel = (data: Omit<Parcel, 'id' | 'trackingId' | 'history' | 'currentStatus' | 'createdAt'>) => {
-    const trackingId = `TRK-${Math.floor(100000 + Math.random() * 900000)}`;
-    const sourceName = getOfficeName(data.sourceOfficeId);
+  const fetchParcels = useCallback(async () => {
+    try {
+      const data = await api.get('/shipment/list/');
+      if (data.status_code === 200) {
+        const mapped: Parcel[] = data.data.map((s: any) => ({
+          slug: s.slug,
+          trackingId: s.tracking_id,
+          senderName: s.sender_name,
+          senderPhone: s.sender_phone,
+          receiverName: s.receiver_name,
+          receiverPhone: s.receiver_phone,
+          sourceOfficeId: s.source_branch,
+          destinationOfficeId: s.destination_branch,
+          sourceOfficeTitle: s.source_branch_title,
+          destinationOfficeTitle: s.destination_branch_title,
+          description: s.description,
+          paymentMode: s.payment_mode as PaymentMode,
+          price: Number(s.price),
+          currentStatus: s.current_status as ParcelStatus,
+          history: s.history.map((h: any) => ({
+            status: h.status as ParcelStatus,
+            timestamp: new Date(h.created_at).getTime(),
+            location: h.location,
+            note: h.remarks
+          })),
+          createdAt: s.created_at
+        }));
+        setParcels(mapped);
+      }
+    } catch (e) {
+      console.error("Failed to fetch shipments:", e);
+    }
+  }, [api]);
 
-    const newParcel: Parcel = {
-      ...data,
-      id: `p_${Date.now()}`,
-      trackingId,
-      currentStatus: ParcelStatus.BOOKED,
-      createdAt: Date.now(),
-      history: [{
-        status: ParcelStatus.BOOKED,
-        timestamp: Date.now(),
-        location: sourceName,
-        note: 'Parcel booked at source office'
-      }]
-    };
+  const createParcel = async (data: any) => {
+    try {
+      const resp = await api.post('/shipment/create/', {
+        sender_name: data.senderName,
+        sender_phone: data.senderPhone,
+        receiver_name: data.receiverName,
+        receiver_phone: data.receiverPhone,
+        description: data.description,
+        price: data.price,
+        payment_mode: data.paymentMode,
+        destination_branch: data.destinationOfficeId
+      });
 
-    setParcels(prev => [newParcel, ...prev]);
-
-    // Send SMS
-    sendFakeSMS('Sender', data.senderPhone, `Your parcel ${trackingId} to ${data.receiverName} is booked!`);
-    sendFakeSMS('Receiver', data.receiverPhone, `A parcel from ${data.senderName} (${trackingId}) has been booked for you.`);
+      if (resp.status_code === 201) {
+        await fetchParcels();
+        // Send fake SMS notifications
+        sendFakeSMS('Sender', data.senderPhone, `Your parcel to ${data.receiverName} is booked! Tracking ID: ${resp.data.tracking_id}`);
+        sendFakeSMS('Receiver', data.receiverPhone, `A parcel from ${data.senderName} has been booked. Tracking ID: ${resp.data.tracking_id}`);
+        return { success: true, message: 'Parcel booked successfully' };
+      }
+      return { success: false, message: resp.message || 'Booking failed' };
+    } catch (e: any) {
+      return { success: false, message: e.message || 'Error occurred' };
+    }
   };
 
-  const updateParcelStatus = (parcelId: string, newStatus: ParcelStatus, note: string = '') => {
-    setParcels(prev => prev.map(p => {
-      if (p.id !== parcelId) return p;
+  const updateParcelStatus = async (trackingId: string, newStatus: ParcelStatus, note: string = '') => {
+    try {
+      const resp = await apiUpdateStatus(trackingId, newStatus, note);
+      if (resp.status_code === 200) {
+        await fetchParcels();
 
-      // Determine location based on user (assume current user handles it)
-      let location = 'Transit';
-      if (currentUser?.officeId) {
-        location = getOfficeName(currentUser.officeId);
-      } else if (currentUser?.role === UserRole.SUPER_ADMIN) {
-        location = "HQ Update";
+        // SMS notifications (mock)
+        const p = parcels.find(p => p.trackingId === trackingId);
+        if (p) {
+          if (newStatus === ParcelStatus.IN_TRANSIT) {
+            sendFakeSMS('Receiver', p.receiverPhone, `Parcel ${trackingId} is now in transit.`);
+          } else if (newStatus === ParcelStatus.ARRIVED) {
+            sendFakeSMS('Receiver', p.receiverPhone, `Parcel ${trackingId} has arrived at destination.`);
+          } else if (newStatus === ParcelStatus.DELIVERED) {
+            sendFakeSMS('Sender', p.senderPhone, `Parcel ${trackingId} was delivered.`);
+          }
+        }
+
+        return { success: true, message: 'Status updated' };
       }
-
-      const updatedHistory = [...p.history, {
-        status: newStatus,
-        timestamp: Date.now(),
-        location,
-        note
-      }];
-
-      // SMS Logic based on status
-      if (newStatus === ParcelStatus.IN_TRANSIT) {
-        sendFakeSMS('Receiver', p.receiverPhone, `Parcel ${p.trackingId} is now in transit.`);
-      } else if (newStatus === ParcelStatus.ARRIVED) {
-        sendFakeSMS('Receiver', p.receiverPhone, `Good news! Parcel ${p.trackingId} has arrived at destination office.`);
-      } else if (newStatus === ParcelStatus.DELIVERED) {
-        sendFakeSMS('Sender', p.senderPhone, `Parcel ${p.trackingId} was successfully delivered.`);
-        sendFakeSMS('Receiver', p.receiverPhone, `You have collected parcel ${p.trackingId}. Thanks!`);
-      }
-
-      return {
-        ...p,
-        currentStatus: newStatus,
-        history: updatedHistory
-      };
-    }));
+      return { success: false, message: resp.message || 'Update failed' };
+    } catch (e: any) {
+      return { success: false, message: e.message || 'Error occurred' };
+    }
   };
 
   return (
@@ -314,6 +345,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addOffice,
       deleteOffice,
       fetchAdminBranches,
+      fetchParcels,
       createParcel,
       updateParcelStatus,
       getOfficeName
