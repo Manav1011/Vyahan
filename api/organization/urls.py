@@ -3,11 +3,12 @@ from .views import (
     list_branches, organization_login, branch_login, 
     refresh_tokens, logout, health_check,
     organization_branches_list, branch_transfer_list,
-    create_branch, delete_branch
+    create_branch, delete_branch, create_organization
 )
 
 urlpatterns = [
     path('login/', organization_login, name='organization_login'),
+    path('create/', create_organization, name='create_organization'),
     path('branch/login/', branch_login, name='branch_login'),
     path('token/refresh/', refresh_tokens, name='refresh_tokens'),
     path('logout/', logout, name='logout'),

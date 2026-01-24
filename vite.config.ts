@@ -9,6 +9,13 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       host: '0.0.0.0',
       allowedHosts: [".vyahan.local"], // This allows vyahan.local and all subdomains (sun.vyahan.local, etc.)
+      proxy: {
+        '/api': {
+          target: 'http://sun.vyahan.local/api',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
+      },
     },
     plugins: [react()],
     define: {

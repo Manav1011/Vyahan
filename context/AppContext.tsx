@@ -19,9 +19,11 @@ interface AppContextType {
   addOffice: (officeData: { name: string, password?: string }) => Promise<{ success: boolean, message: string }>;
   deleteOffice: (officeId: string) => Promise<{ success: boolean, message: string }>;
   fetchAdminBranches: () => Promise<void>;
-  createParcel: (parcel: any) => Promise<{ success: boolean, message: string }>;
+  createParcel: (parcel: any) => Promise<{ success: boolean, message: string, data?: any }>;
   updateParcelStatus: (trackingId: string, newStatus: ParcelStatus, note?: string) => Promise<{ success: boolean, message: string }>;
   fetchParcels: () => Promise<void>;
+  trackShipment: (id: string) => Promise<{ success: boolean, data?: Parcel, message?: string }>;
+  getShipmentDetails: (id: string) => Promise<{ success: boolean, data?: Parcel, message?: string }>;
   getOfficeName: (id: string) => string;
 }
 
@@ -295,10 +297,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       if (resp.status_code === 201) {
         await fetchParcels();
+        const newParcel: Parcel = {
+          slug: resp.data.slug,
+          trackingId: resp.data.tracking_id,
+          senderName: resp.data.sender_name,
+          senderPhone: resp.data.sender_phone,
+          receiverName: resp.data.receiver_name,
+          receiverPhone: resp.data.receiver_phone,
+          sourceOfficeId: resp.data.source_branch,
+          destinationOfficeId: resp.data.destination_branch,
+          sourceOfficeTitle: resp.data.source_branch_title,
+          destinationOfficeTitle: resp.data.destination_branch_title,
+          description: resp.data.description,
+          paymentMode: resp.data.payment_mode as PaymentMode,
+          price: Number(resp.data.price),
+          currentStatus: resp.data.current_status as ParcelStatus,
+          history: resp.data.history.map((h: any) => ({
+            status: h.status as ParcelStatus,
+            timestamp: new Date(h.created_at).getTime(),
+            location: h.location,
+            note: h.remarks
+          })),
+          createdAt: resp.data.created_at
+        };
+
         // Send fake SMS notifications
         sendFakeSMS('Sender', data.senderPhone, `Your parcel to ${data.receiverName} is booked! Tracking ID: ${resp.data.tracking_id}`);
         sendFakeSMS('Receiver', data.receiverPhone, `A parcel from ${data.senderName} has been booked. Tracking ID: ${resp.data.tracking_id}`);
-        return { success: true, message: 'Parcel booked successfully' };
+        return { success: true, message: 'Parcel booked successfully', data: newParcel };
       }
       return { success: false, message: resp.message || 'Booking failed' };
     } catch (e: any) {
@@ -348,6 +374,89 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       fetchParcels,
       createParcel,
       updateParcelStatus,
+      trackShipment: async (id: string) => {
+        try {
+          const res = await api.get(`/shipment/track/${id}/`);
+          if (res.status_code === 200) {
+             const s = res.data;
+             return {
+                success: true,
+                data: {
+                  slug: s.slug,
+                  trackingId: s.tracking_id,
+                  senderName: s.sender_name,
+                  senderPhone: s.sender_phone,
+                  receiverName: s.receiver_name,
+                  receiverPhone: s.receiver_phone,
+                  sourceOfficeId: s.source_branch,
+                  destinationOfficeId: s.destination_branch,
+                  sourceOfficeTitle: s.source_branch_title,
+                  destinationOfficeTitle: s.destination_branch_title,
+                  description: s.description,
+                  paymentMode: s.payment_mode as PaymentMode,
+                  price: Number(s.price),
+                  currentStatus: s.current_status as ParcelStatus,
+                  history: s.history.map((h: any) => ({
+                    status: h.status as ParcelStatus,
+                    timestamp: new Date(h.created_at).getTime(),
+                    location: h.location,
+                    note: h.remarks
+                  })),
+                  createdAt: s.created_at
+                }
+             };
+          }
+          return { success: false, message: 'Not found' };
+        } catch (e) {
+          return { success: false, message: 'Error' };
+        }
+      },
+      getShipmentDetails: async (id: string) => {
+        try {
+          // Use the authenticated client 'api' here, not 'publicApi' usage implied by calling service directly? 
+          // Wait, apiService functions use 'publicApi' which is a stateless client.
+          // Yet 'createApiClient' is what AppContext uses for 'api'.
+          // The functions in apiService.ts like 'fetchShipments' use 'publicApi'.
+          // But 'publicApi' in apiService.ts is just a fresh client, it doesn't hold token automatically unless we passed it?
+          // Actually, createApiClient inside apiService.ts pulls from localStorage. So 'publicApi' works if token is in storage.
+          // However, AppContext has its own 'api' instance that handles auto-logout.
+          // We should ideally use 'api.get' here to ensure 401 handling works.
+          
+          const res = await api.get(`/shipment/${id}/`);
+          if (res.status_code === 200) {
+             const s = res.data;
+             return {
+                success: true,
+                data: {
+                  slug: s.slug,
+                  trackingId: s.tracking_id,
+                  senderName: s.sender_name,
+                  senderPhone: s.sender_phone,
+                  receiverName: s.receiver_name,
+                  receiverPhone: s.receiver_phone,
+                  sourceOfficeId: s.source_branch,
+                  destinationOfficeId: s.destination_branch,
+                  sourceOfficeTitle: s.source_branch_title,
+                  destinationOfficeTitle: s.destination_branch_title,
+                  description: s.description,
+                  paymentMode: s.payment_mode as PaymentMode,
+                  price: Number(s.price),
+                  currentStatus: s.current_status as ParcelStatus,
+                  history: s.history.map((h: any) => ({
+                    status: h.status as ParcelStatus,
+                    timestamp: new Date(h.created_at).getTime(),
+                    location: h.location,
+                    note: h.remarks
+                  })),
+                  createdAt: s.created_at
+                }
+             };
+          }
+          return { success: false, message: 'Not found' };
+        } catch (e) {
+          return { success: false, message: 'Error' };
+        }
+      },
       getOfficeName
     }}>
       {children}

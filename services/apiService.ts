@@ -101,6 +101,7 @@ export const fetchBranches = () => publicApi.get('/organization/branches/');
 // Shipment APIs
 export const createShipment = (data: any) => publicApi.post('/shipment/create/', data);
 export const fetchShipments = () => publicApi.get('/shipment/list/');
+export const getShipment = (trackingId: string) => publicApi.get(`/shipment/${trackingId}/`);
 export const updateShipmentStatus = (trackingId: string, status: string, remarks: string) =>
     publicApi.patch(`/shipment/${trackingId}/update-status/`, { status, remarks });
 export const trackShipment = (trackingId: string) => publicApi.get(`/shipment/track/${trackingId}/`);

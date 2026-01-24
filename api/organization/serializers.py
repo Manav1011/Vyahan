@@ -24,6 +24,17 @@ class OrganizationLoginSerializer(serializers.Serializer):
     org_id = serializers.CharField(help_text="Organization ID or slug")
     password = serializers.CharField(write_only=True)
 
+class OrganizationCreateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=8)
+
+    class Meta:
+        model = Organization
+        fields = ['title', 'subdomain', 'description', 'metadata', 'password']
+
+    def create(self, validated_data):
+        # The password will be hashed in Organization.save()
+        return super().create(validated_data)
+
 class BranchLoginSerializer(serializers.Serializer):
     branch_id = serializers.CharField(help_text="Branch ID or slug")
     password = serializers.CharField(write_only=True)

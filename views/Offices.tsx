@@ -59,7 +59,7 @@ export const Offices: React.FC = () => {
           <h3 className="font-bold text-slate-800 mb-4 text-lg">Register New Branch</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="text-xs font-bold text-slate-400 uppercase ml-1">Office Name</label>
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Office Name</label>
               <input
                 placeholder="e.g. Westside Hub" required
                 className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:border-teal-500 outline-none"
@@ -67,7 +67,7 @@ export const Offices: React.FC = () => {
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-400 uppercase ml-1">Manager Password</label>
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Manager Password</label>
               <input
                 placeholder="Set password" required type="password"
                 className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:border-teal-500 outline-none"

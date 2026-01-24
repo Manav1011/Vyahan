@@ -8,6 +8,7 @@ from .serializers import ShipmentSerializer, ShipmentCreateSerializer, ShipmentH
 from core.utils import response
 from organization.permissions import IsOrganizationSet
 from core.authentication import VyahanJWTAuthentication
+from core.sms_service import send_sms
 
 @swagger_auto_schema(
     method='post',
@@ -39,6 +40,35 @@ def create_shipment(request):
         )
         
         resp_serializer = ShipmentSerializer(shipment)
+        
+        # --- Send SMS Notifications ---
+        try:
+            tracking_link = f"http://localhost:3000/track/{shipment.tracking_id}"
+            
+            # 1. Notify Sender
+            sender_msg = (
+                f"Shipment Confirmed!\n"
+                f"Tracking ID: {shipment.tracking_id}\n"
+                f"To: {shipment.receiver_name}\n"
+                f"Route: {shipment.source_branch.title} -> {shipment.destination_branch.title}\n"                
+                f"- Vyhan Logistics"
+            )
+            send_sms(shipment.sender_phone, sender_msg)
+            
+            # 2. Notify Receiver
+            receiver_msg = (
+                f"Incoming Shipment!\n"
+                f"From: {shipment.sender_name}\n"
+                f"Tracking ID: {shipment.tracking_id}\n"
+                f"Route: {shipment.source_branch.title} -> {shipment.destination_branch.title}\n"                
+                f"- Vyhan Logistics"
+            )
+            send_sms(shipment.receiver_phone, receiver_msg)
+            
+        except Exception as e:
+            # We don't want to fail the request if SMS fails, just log it
+            print(f"SMS Sending failed: {e}")
+        
         return response(status.HTTP_201_CREATED, "Shipment booked successfully", data=resp_serializer.data)
     return response(status.HTTP_400_BAD_REQUEST, "Invalid data", error=serializer.errors)
 
@@ -73,6 +103,34 @@ def list_shipments(request):
 
     serializer = ShipmentSerializer(shipments, many=True)
     return response(status.HTTP_200_OK, "Shipments fetched successfully", data=serializer.data)
+
+@swagger_auto_schema(
+    method='get',
+    responses={200: ShipmentSerializer},
+    operation_description="Retrieve a specific shipment for admin/internal view.",
+    security=[{'Bearer': []}]
+)
+@api_view(['GET'])
+@authentication_classes([VyahanJWTAuthentication])
+@permission_classes([IsOrganizationSet])
+def retrieve_shipment(request, tracking_id):
+    org = getattr(request, 'organization', None)
+    
+    try:
+        shipment = Shipment.objects.get(tracking_id=tracking_id, organization=org)
+    except Shipment.DoesNotExist:
+        return response(status.HTTP_404_NOT_FOUND, "Shipment not found")
+    
+    # Optional: Check branch permissions if we want to restrict branch managers to only their shipments
+    # For now, assuming org-wide visibility for internal authenticated users is acceptable or handled by frontend filtering
+    # But strictly, we should probably check:
+    branch = getattr(request, 'branch', None)
+    if branch:
+        if shipment.source_branch != branch and shipment.destination_branch != branch:
+             return response(status.HTTP_403_FORBIDDEN, "You do not have access to this shipment")
+
+    serializer = ShipmentSerializer(shipment)
+    return response(status.HTTP_200_OK, "Shipment fetched successfully", data=serializer.data)
 
 @swagger_auto_schema(
     method='patch',

@@ -46,28 +46,28 @@ export const Login: React.FC = () => {
     setLoading(false);
   };
 
-  const RoleButton = ({ title, desc, icon: Icon, targetRole, themeColor, ringColor, bgColor }: any) => (
+  const RoleButton = ({ title, desc, icon: Icon, targetRole, themeColor, ringColor, bgColor, iconColor = "text-white" }: any) => (
     <button
       onClick={() => setRole(targetRole)}
-      className={`group w-full text-left p-4 rounded-xl border border-white/60 hover:border-${themeColor}-300 hover:ring-4 ${ringColor} transition-all bg-white/70 backdrop-blur-sm relative overflow-hidden flex items-center gap-4 shadow-sm hover:shadow-xl`}
+      className={`group w-full text-left p-3 rounded-xl border border-slate-200 hover:border-[#F97316]/30 hover:ring-2 ring-[#F97316]/10 transition-all bg-white relative overflow-hidden flex items-center gap-3 shadow-sm hover:shadow-md`}
     >
-      <div className={`absolute inset-0 bg-gradient-to-r from-${themeColor}-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+      <div className={`absolute inset-0 bg-gradient-to-r from-[#F97316]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
 
-      <div className={`relative w-12 h-12 rounded-full ${bgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-inner`}>
-        <Icon className="w-6 h-6 text-white" />
+      <div className={`relative w-10 h-10 rounded-xl ${bgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg orange-glow`}>
+        <Icon className={`w-5 h-5 ${iconColor}`} />
       </div>
       <div className="relative flex-1">
-        <h3 className="font-brand font-bold text-slate-800 text-lg group-hover:text-slate-900 transition-colors">{title}</h3>
-        <p className="text-xs text-slate-500 font-medium group-hover:text-slate-600 font-sans">{desc}</p>
+        <h3 className="font-brand font-bold text-slate-800 text-sm group-hover:text-[#F97316] transition-colors">{title}</h3>
+        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest group-hover:text-slate-400 font-brand">{desc}</p>
       </div>
-      <div className={`relative w-8 h-8 rounded-full flex items-center justify-center opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-${themeColor}-600`}>
-        <ChevronLeft className="w-5 h-5 rotate-180" />
+      <div className={`relative w-6 h-6 rounded-full flex items-center justify-center opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#F97316]`}>
+        <ChevronLeft className="w-4 h-4 rotate-180" />
       </div>
     </button>
   );
 
   return (
-    <div className="min-h-screen flex w-full bg-slate-50 font-sans overflow-hidden">
+    <div className="min-h-screen flex w-full bg-slate-50 font-brand overflow-hidden selection:bg-[#F97316]/30 selection:text-white">
       <style>{`
         @keyframes float {
           0% { transform: translate(0px, 0px) scale(1); }
@@ -83,188 +83,159 @@ export const Login: React.FC = () => {
         }
       `}</style>
 
-      {/* Left Side - Rich Image Background */}
-      <div className="hidden lg:flex lg:w-5/12 relative bg-slate-900 text-white overflow-hidden shadow-2xl z-10">
+      {/* Left Side - High-Tech Visualization */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-slate-50 text-slate-900 overflow-hidden z-10">
         <div
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-[40s] hover:scale-110"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')" }}
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-[40s] hover:scale-105 opacity-50 grayscale hover:grayscale-0"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1578575437130-527eed3abbec?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-slate-900/90 to-blue-900/90 mix-blend-multiply"></div>
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-white via-white/90 to-transparent"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(249,115,22,0.05),transparent_60%)]"></div>
 
-        <div className="relative z-10 p-12 flex flex-col justify-between h-full">
-          {/* Logo Section */}
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2.5 rounded-xl shadow-lg shadow-indigo-500/30 ring-1 ring-white/20 transform rotate-3 hover:rotate-6 transition-transform">
-              <Navigation className="w-6 h-6 text-white transform -rotate-45 translate-x-0.5 translate-y-0.5" fill="currentColor" />
+        <div className="relative z-10 p-12 flex flex-col justify-between h-full w-full">
+          <div>
+            <div className="flex items-center gap-3 mb-10">
+              <div className="bg-[#F97316] p-2 rounded-xl shadow-lg orange-glow transform rotate-6 border border-white/20">
+                <Navigation className="w-6 h-6 text-white transform -rotate-45" fill="currentColor" />
+              </div>
+              <span className="text-3xl font-brand font-bold tracking-tighter text-slate-900">Vyhan</span>
             </div>
-            <span className="text-3xl font-brand font-bold tracking-tight text-white drop-shadow-md">Vyhan</span>
-          </div>
 
-          <div className="mb-12">
-            <h1 className="text-4xl xl:text-5xl font-brand font-extrabold leading-tight mb-6 tracking-tight">
-              Logistics for the <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">
-                Next Generation.
+            <h1 className="text-6xl xl:text-7xl font-brand font-bold leading-[0.9] mb-8 tracking-tighter">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F97316] via-[#FB923C] to-[#FDBA74]">
+                Smart<br /> Logistics.
               </span>
             </h1>
-            <p className="text-slate-300 text-lg max-w-md leading-relaxed font-light font-sans">
-              Vyhan automates your entire supply chain with intelligent tracking, real-time analytics, and seamless coordination.
+            <p className="text-slate-600 text-lg max-w-lg leading-relaxed font-brand font-medium">
+                The easiest way to manage and track your shipments. Real-time updates and simple management.
             </p>
 
-            <div className="flex gap-6 mt-10 items-center">
-              <div className="flex -space-x-4">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="w-12 h-12 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-white/10">
-                    <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" className="w-full h-full object-cover opacity-90" />
-                  </div>
-                ))}
-              </div>
-              <div className="h-10 w-px bg-white/20"></div>
-              <div className="flex flex-col justify-center">
-                <div className="text-2xl font-bold text-white font-brand">10k+</div>
-                <span className="text-xs text-slate-400 font-medium tracking-wide uppercase font-sans">Daily Shipments</span>
-              </div>
-            </div>
+
           </div>
 
-          <div className="flex justify-between items-center text-xs text-slate-400 font-medium tracking-wide border-t border-white/10 pt-6 font-sans">
-            <span>© 2025 VYHAN INC.</span>
-            <div className="flex gap-4">
-              <span className="hover:text-white cursor-pointer transition-colors">PRIVACY</span>
-              <span className="hover:text-white cursor-pointer transition-colors">TERMS</span>
+          <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold tracking-[0.2em] border-t border-slate-200 pt-6">
+            <span>V2.0.4</span>
+            <div className="flex gap-8">
+              <span className="hover:text-[#F97316] cursor-pointer transition-colors">SECURE</span>
+              <span className="hover:text-[#F97316] cursor-pointer transition-colors">ENCRYPTED</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right Side - Dynamic Form Container */}
-      <div className="w-full lg:w-7/12 flex items-center justify-center p-6 relative bg-slate-50">
+      {/* Right Side - Premium Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-10 relative bg-slate-50">
 
-        {/* Dynamic Background Blobs */}
-        <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-purple-300 rounded-full blur-[120px] opacity-30 animate-float pointer-events-none mix-blend-multiply"></div>
-        <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-indigo-300 rounded-full blur-[100px] opacity-30 animate-float-delayed pointer-events-none mix-blend-multiply"></div>
-        <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-blue-300 rounded-full blur-[80px] opacity-30 animate-pulse pointer-events-none mix-blend-multiply"></div>
+        {/* Dynamic Background Effects */}
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#F97316]/5 rounded-full blur-[150px] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-sky-500/5 rounded-full blur-[150px] pointer-events-none"></div>
 
-        <div className="w-full max-w-[440px] relative z-10">
+        <div className="w-full max-w-[480px] relative z-10 h-full flex flex-col justify-center">
 
           {!role ? (
-            <div className="bg-white/60 backdrop-blur-xl p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white ring-1 ring-white/50 animate-fade-in-up">
-              <div className="text-center mb-10">
-                <div className="inline-flex justify-center items-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-white to-slate-100 text-slate-700 mb-6 shadow-lg ring-1 ring-slate-100">
-                  <Lock className="w-7 h-7 text-indigo-600" />
+            <div className="glass p-8 rounded-[32px] shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-500 bg-white/80">
+              <div className="text-center mb-6">
+                <div className="inline-flex justify-center items-center w-12 h-12 rounded-xl bg-white text-[#F97316] mb-4 border border-slate-200 orange-glow shadow-sm">
+                  <Shield className="w-6 h-6" />
                 </div>
-                <h2 className="text-3xl font-brand font-bold text-slate-900 tracking-tight">Welcome to Vyhan</h2>
-                <p className="text-slate-500 mt-3 text-sm font-medium font-sans">Select your portal to access the dashboard</p>
+                <h2 className="text-3xl font-brand font-bold text-slate-900 tracking-tighter">Welcome</h2>
+                <p className="text-slate-500 mt-1 text-xs font-brand leading-relaxed">Select your role to continue.</p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <RoleButton
-                  title="Company Owner"
-                  desc="Global Analytics & Control"
+                  title="Admin"
+                  desc="System Control"
                   icon={Shield}
                   targetRole={UserRole.SUPER_ADMIN}
-                  themeColor="indigo"
-                  ringColor="ring-indigo-100"
-                  bgColor="bg-gradient-to-br from-indigo-500 to-purple-600"
+                  bgColor="bg-[#F97316]"
                 />
                 <RoleButton
-                  title="Office Manager"
-                  desc="Branch Shipment Management"
+                  title="Branch Manager"
+                  desc="Office Operations"
                   icon={Store}
                   targetRole={UserRole.OFFICE_ADMIN}
-                  themeColor="teal"
-                  ringColor="ring-teal-100"
-                  bgColor="bg-gradient-to-br from-teal-500 to-emerald-600"
+                  bgColor="bg-slate-800"
                 />
 
-                <div className="relative py-2">
-                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-300/50"></span></div>
-                  <div className="relative flex justify-center text-xs uppercase tracking-widest"><span className="bg-white/30 backdrop-blur px-3 text-slate-400 font-bold rounded-full font-brand">Or</span></div>
+                <div className="relative py-3">
+                  <div className="absolute inset-0 flex items-center font-bold tracking-widest"><span className="w-full border-t border-slate-200"></span></div>
+                  <div className="relative flex justify-center text-[8px] uppercase tracking-[0.4em]"><span className="bg-slate-50 px-2 text-slate-400 font-black">Public</span></div>
                 </div>
 
                 <RoleButton
-                  title="Track a Shipment"
-                  desc="Public Tracking Search"
+                  title="Track Package"
+                  desc="Guest Search"
                   icon={Search}
                   targetRole={UserRole.PUBLIC}
-                  themeColor="sky"
-                  ringColor="ring-sky-100"
-                  bgColor="bg-gradient-to-br from-sky-500 to-blue-600"
+                  bgColor="bg-slate-100"
+                  iconColor="text-slate-500"
                 />
               </div>
             </div>
           ) : (
-            <div className="bg-white/70 backdrop-blur-2xl p-8 rounded-3xl shadow-2xl border border-white ring-1 ring-white/60 relative transition-all animate-fade-in-up">
+            <div className="glass p-8 rounded-[32px] shadow-xl border border-slate-200 relative transition-all animate-in fade-in slide-in-from-right-10 duration-500 bg-white/80">
               <button
                 onClick={resetSelection}
-                className="absolute top-6 left-6 p-2 rounded-xl hover:bg-white/80 text-slate-400 hover:text-slate-700 transition-colors shadow-sm ring-1 ring-transparent hover:ring-slate-100"
-                title="Go Back"
+                className="absolute top-6 left-6 p-2 rounded-xl glass hover:border-[#F97316]/30 text-slate-400 hover:text-slate-900 transition-all shadow-sm border border-slate-200"
+                title="Return"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
 
-              <div className="text-center mb-8 pt-6">
-                <div className={`inline-flex justify-center items-center w-20 h-20 rounded-3xl mb-6 shadow-xl ring-4 ring-white 
-                    ${role === UserRole.SUPER_ADMIN ? 'bg-gradient-to-br from-indigo-500 to-purple-600 shadow-indigo-200' : ''}
-                    ${role === UserRole.OFFICE_ADMIN ? 'bg-gradient-to-br from-teal-500 to-emerald-600 shadow-teal-200' : ''}
-                    ${role === UserRole.PUBLIC ? 'bg-gradient-to-br from-sky-500 to-blue-600 shadow-sky-200' : ''}
+              <div className="text-center mb-8 pt-4">
+                <div className={`inline-flex justify-center items-center w-16 h-16 rounded-[20px] mb-4 border border-white/10 orange-glow 
+                    ${role === UserRole.SUPER_ADMIN ? 'bg-[#F97316]' : 'bg-slate-800'}
                 `}>
-                  {role === UserRole.SUPER_ADMIN && <Shield className="w-10 h-10 text-white" />}
-                  {role === UserRole.OFFICE_ADMIN && <Store className="w-10 h-10 text-white" />}
-                  {role === UserRole.PUBLIC && <Search className="w-10 h-10 text-white" />}
+                  {role === UserRole.SUPER_ADMIN && <Shield className="w-8 h-8 text-white" />}
+                  {role === UserRole.OFFICE_ADMIN && <Store className="w-8 h-8 text-white" />}
+                  {role === UserRole.PUBLIC && <Search className="w-8 h-8 text-white" />}
                 </div>
-                <h2 className="text-3xl font-brand font-bold text-slate-900 tracking-tight">
-                  {role === UserRole.SUPER_ADMIN && 'Admin Portal'}
-                  {role === UserRole.OFFICE_ADMIN && 'Branch Portal'}
-                  {role === UserRole.PUBLIC && 'Public Tracking'}
+                <h2 className="text-2xl font-brand font-bold text-slate-900 tracking-tighter uppercase">
+                  {role === UserRole.SUPER_ADMIN && 'Root Access'}
+                  {role === UserRole.OFFICE_ADMIN && 'Node Access'}
+                  {role === UserRole.PUBLIC && 'Public Node'}
                 </h2>
-                <p className="text-slate-500 mt-2 text-sm font-medium font-sans">
-                  {role === UserRole.PUBLIC ? 'Enter details to track instantly' : 'Secure login to your workspace'}
+                <p className="text-slate-500 mt-2 text-xs font-brand font-bold uppercase tracking-widest">
+                  {role === UserRole.PUBLIC ? 'No login needed' : 'Enter credentials'}
                 </p>
               </div>
 
               <form onSubmit={handleLogin} className="space-y-6">
 
                 {role === UserRole.OFFICE_ADMIN && (
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wide ml-1 font-brand">Select Branch</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Terminal ID</label>
                     <div className="relative group">
-                      <Store className="absolute left-4 top-4 w-5 h-5 text-slate-400 group-focus-within:text-teal-600 transition-colors" />
+                      <Store className="absolute left-4 top-4 w-4 h-4 text-slate-500 group-focus-within:text-[#F97316] transition-colors" />
                       <select
-                        className="w-full pl-12 p-4 bg-white/50 border border-slate-200 rounded-2xl text-slate-900 outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm font-bold appearance-none cursor-pointer hover:bg-white"
+                        className="w-full pl-10 p-4 bg-white/50 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-[#F97316]/50 transition-all text-xs font-bold appearance-none cursor-pointer hover:bg-white"
                         value={selectedOffice}
                         onChange={(e) => setSelectedOffice(e.target.value)}
                       >
                         {offices.map(office => (
-                          <option key={office.id} value={office.id}>{office.name}</option>
+                          <option key={office.id} value={office.id} className="bg-white text-slate-900">{office.name}</option>
                         ))}
                       </select>
                       <div className="absolute right-4 top-4 pointer-events-none">
-                        <ChevronLeft className="w-5 h-5 text-slate-400 -rotate-90" />
+                        <ChevronLeft className="w-4 h-4 text-slate-600 -rotate-90" />
                       </div>
                     </div>
                   </div>
                 )}
 
                 {role !== UserRole.PUBLIC && (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="flex justify-between items-center ml-1">
-                      <label className="text-xs font-bold text-slate-700 uppercase tracking-wide font-brand">Password</label>
-                      <span className={`text-xs cursor-pointer hover:underline font-bold transition-colors font-brand
-                            ${role === UserRole.SUPER_ADMIN ? 'text-indigo-600' : 'text-teal-600'}
-                        `}>Forgot Password?</span>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Password Key</label>
+                      <span className="text-[10px] cursor-pointer hover:underline font-bold text-[#F97316] transition-colors uppercase tracking-widest">Lost Access?</span>
                     </div>
                     <div className="relative group">
-                      <Lock className={`absolute left-4 top-4 w-5 h-5 text-slate-400 transition-colors
-                          ${role === UserRole.SUPER_ADMIN ? 'group-focus-within:text-indigo-600' : 'group-focus-within:text-teal-600'}
-                      `} />
+                      <Lock className="absolute left-4 top-4 w-4 h-4 text-slate-500 transition-colors group-focus-within:text-[#F97316]" />
                       <input
                         type="password"
-                        placeholder="••••••••"
-                        className={`w-full pl-12 p-4 bg-white/50 border border-slate-200 rounded-2xl text-slate-900 outline-none focus:ring-4 transition-all font-bold placeholder:text-slate-300 hover:bg-white font-sans
-                            ${role === UserRole.SUPER_ADMIN ? 'focus:ring-indigo-500/10 focus:border-indigo-500' : 'focus:ring-teal-500/10 focus:border-teal-500'}
-                        `}
+                        placeholder="••••••••••••"
+                        className="w-full pl-10 p-4 bg-white/50 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-[#F97316]/50 transition-all font-bold placeholder:text-slate-500 hover:bg-white font-brand text-xs"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         autoFocus
@@ -273,49 +244,28 @@ export const Login: React.FC = () => {
                   </div>
                 )}
 
-                {role !== UserRole.PUBLIC && (
-                  <div className="flex items-center gap-3 ml-1">
-                    <button
-                      type="button"
-                      onClick={() => setRememberMe(!rememberMe)}
-                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all 
-                                ${rememberMe && role === UserRole.SUPER_ADMIN ? 'bg-indigo-600 border-indigo-600 text-white' : ''}
-                                ${rememberMe && role === UserRole.OFFICE_ADMIN ? 'bg-teal-600 border-teal-600 text-white' : ''}
-                                ${!rememberMe ? 'bg-transparent border-slate-300 hover:border-slate-400' : ''}
-                            `}
-                    >
-                      {rememberMe && <Check className="w-4 h-4" strokeWidth={3} />}
-                    </button>
-                    <span className="text-sm text-slate-600 select-none cursor-pointer font-medium font-sans" onClick={() => setRememberMe(!rememberMe)}>Keep me logged in</span>
-                  </div>
-                )}
-
                 {error && (
-                  <div className="p-4 bg-rose-50/80 backdrop-blur border border-rose-200 text-rose-600 text-sm rounded-2xl flex items-start gap-3 animate-pulse shadow-sm">
+                  <div className="p-5 bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs rounded-2xl flex items-start gap-4 animate-in fade-in zoom-in-95">
                     <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                    <span className="font-medium font-sans">{error}</span>
+                    <span className="font-bold uppercase tracking-widest leading-loose">{error}</span>
                   </div>
                 )}
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full py-4 rounded-2xl font-bold text-sm text-white shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-1 hover:shadow-2xl font-brand
-                    ${role === UserRole.SUPER_ADMIN ? 'bg-gradient-to-r from-indigo-600 to-purple-600 shadow-indigo-500/30' : ''}
-                    ${role === UserRole.OFFICE_ADMIN ? 'bg-gradient-to-r from-teal-600 to-emerald-600 shadow-teal-500/30' : ''}
-                    ${role === UserRole.PUBLIC ? 'bg-gradient-to-r from-sky-600 to-blue-600 shadow-sky-500/30' : ''}
-                  `}
+                  className="w-full py-4 rounded-xl font-bold text-xs text-white shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-1 bg-[#F97316] orange-glow uppercase tracking-[0.2em] font-brand hover:bg-[#EA580C]"
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {role === UserRole.PUBLIC ? 'Start Tracking' : 'Sign In to Dashboard'}
+                  {role === UserRole.PUBLIC ? 'Track' : 'Login'}
                 </button>
               </form>
             </div>
           )}
 
           <div className="mt-8 text-center">
-            <p className="text-slate-400 text-xs font-medium font-sans">
-              {role ? 'Need help accessing your account?' : 'Having trouble?'} <a href="#" className="text-slate-600 font-bold hover:text-slate-900 hover:underline transition-colors">Contact Support</a>
+            <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.3em]">
+              SECURE PORTAL V2.0.4
             </p>
           </div>
         </div>

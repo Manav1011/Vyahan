@@ -16,53 +16,75 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ parcel, sourceOffice, desti
     const handlePrint = () => {
         if (!printRef.current) return;
 
-        // Create a new window for printing
-        const printWindow = window.open('', '', 'width=400,height=600');
-        if (!printWindow) return;
-
         const content = printRef.current.innerHTML;
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        document.body.appendChild(iframe);
 
-        printWindow.document.write(`
-      <html>
-        <head>
-          <title>Bill of Supply - ${parcel.trackingId}</title>
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
-            body {
-              font-family: 'Courier Prime', monospace;
-              width: 300px;
-              margin: 0 auto;
-              padding: 5px;
-              font-size: 13px;
-              line-height: 1.2;
-              color: #000;
-              background: #fff;
-            }
-            .header { text-align: center; margin-bottom: 8px; font-weight: normal; }
-            .divider { border-bottom: 2px dotted #000; margin: 10px 0; }
-            .title { text-align: center; font-weight: bold; font-size: 16px; margin: 8px 0; }
-            .row { display: flex; margin-bottom: 4px; align-items: flex-start; }
-            .label { width: 105px; flex-shrink: 0; }
-            .val { flex: 1; font-weight: bold; white-space: pre-wrap; word-break: break-word; }
-            .footer { margin-top: 15px; font-size: 11px; border-top: 1px solid #000; padding-top: 8px; line-height: 1.4; }
-            .amount-val { font-size: 16px; }
-            
-            @media print {
-              body { width: 100%; margin: 0; padding: 0; }
-              @page { margin: 0; size: auto; }
-              .no-print { display: none; }
-            }
-          </style>
-        </head>
-        <body>
-          ${content}
-          <script>
-            window.onload = function() { window.print(); window.close(); }
-          </script>
-        </body>
-      </html>
-    `);
-        printWindow.document.close();
+        const doc = iframe.contentWindow?.document;
+        if (!doc) return;
+
+        doc.open();
+        doc.write(`
+          <html>
+            <head>
+              <title>Bill of Supply - ${parcel.trackingId}</title>
+              <style>
+                @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+                body {
+                  font-family: 'Courier Prime', monospace;
+                  width: 300px;
+                  margin: 0;
+                  padding: 10px;
+                  font-size: 13px;
+                  line-height: 1.2;
+                  color: #000;
+                  background: #fff;
+                }
+                .header { text-align: center; margin-bottom: 8px; font-weight: normal; }
+                .divider { border-bottom: 2px dotted #000; margin: 10px 0; }
+                .title { text-align: center; font-weight: bold; font-size: 16px; margin: 8px 0; }
+                .row { display: flex; margin-bottom: 4px; align-items: flex-start; }
+                .label { width: 105px; flex-shrink: 0; }
+                .val { flex: 1; font-weight: bold; white-space: pre-wrap; word-break: break-word; }
+                .footer { margin-top: 15px; font-size: 11px; border-top: 1px solid #000; padding-top: 8px; line-height: 1.4; }
+                @media print {
+                  @page { margin: 0; size: auto; }
+                  body { padding: 0.5cm; }
+                }
+              </style>
+            </head>
+            <body>
+              ${content}
+            </body>
+          </html>
+        `);
+        doc.close();
+
+        // Wait for content/fonts to load then print
+        iframe.onload = () => {
+            setTimeout(() => {
+                iframe.contentWindow?.focus();
+                iframe.contentWindow?.print();
+                // Remove iframe after printing (with a delay to ensure print dialog is done)
+                // Note: There is no perfect way to know when print dialog closes in all browsers,
+                // but removing it after a longer timeout is usually safe or just leaving it is fine (it's hidden).
+                // We'll remove it after a minute to be safe? Or just leave it.
+                // Better: remove it after a short delay, modern browsers handle this okay.
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                }, 1000);
+            }, 500);
+        };
+        
+        // Fallback for onload not firing if cached or fast? 
+        // Force trigger if onload doesn't happen quickly? 
+        // Actually, doc.close() triggers load.
     };
 
     const formatDate = (dateStr: string) => {

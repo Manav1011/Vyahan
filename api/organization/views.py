@@ -11,7 +11,7 @@ from core.authentication import OrganizationJWTAuthentication, BranchJWTAuthenti
 from .serializers import (
     OrganizationSerializer, BranchSerializer, BranchListRequestSerializer, BranchListResponseSerializer,
     OrganizationLoginSerializer, BranchLoginSerializer, TokenResponseSerializer,
-    RefreshTokenSerializer, LogoutSerializer, BranchCreateSerializer
+    RefreshTokenSerializer, LogoutSerializer, BranchCreateSerializer, OrganizationCreateSerializer
 )
 
 
@@ -36,6 +36,21 @@ def health_check(request):
 	resp_data['branches'] = branch_serializer.data
 	
 	return response(status.HTTP_200_OK, "Organization is healthy", data=resp_data)
+	
+@swagger_auto_schema(
+	method='post',
+	request_body=OrganizationCreateSerializer,
+	responses={201: OrganizationSerializer},
+	operation_description="Create a new organization. Open endpoint."
+)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_organization(request):
+	serializer = OrganizationCreateSerializer(data=request.data)
+	if serializer.is_valid():
+		org = serializer.save()
+		return response(status.HTTP_201_CREATED, "Organization created successfully", data=OrganizationSerializer(org).data)
+	return response(status.HTTP_400_BAD_REQUEST, "Organization creation failed", error=serializer.errors)
 
 @swagger_auto_schema(
 	method='get',
