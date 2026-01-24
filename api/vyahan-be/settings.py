@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     'vyahan.local',   # Allow root domain
     'localhost',
     '127.0.0.1',
+    '.vyahan.mnv-dev.site'
 ]
 
 
